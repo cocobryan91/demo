@@ -1,0 +1,20 @@
+@startuml
+actor User
+participant "Python Script" as Script
+participant "System" as Sys
+
+User -> Script: Run script with version
+Script -> Script: parse_arguments()
+Script -> Script: is_trivy_installed()
+alt If Trivy is installed
+    Script -> User: Skip installation
+else If Trivy is not installed
+    Script -> Script: install_trivy()
+    Script -> Script: detect OS and architecture
+    Script -> Script: execute_bash_commands()
+    Script -> Sys: Download and install package
+    Sys -> Script: Return installation status
+    Script -> Script: verify_installation()
+    Script -> User: Return success or failure message
+end
+@enduml
