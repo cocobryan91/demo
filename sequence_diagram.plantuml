@@ -15,6 +15,9 @@ else If Trivy is not installed
     Script -> Sys: Download and install package
     Sys -> Script: Return installation status
     Script -> Script: verify_installation()
+    Script -> Script: Run "trivy filesystem /" scan
+    Script -> Sys: Execute scan
+    Sys -> Script: Return scan results
     Script -> User: Return success or failure message
 end
 @enduml

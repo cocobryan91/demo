@@ -22,9 +22,13 @@ def is_trivy_installed():
         installed_version = result.stdout.split()[1].lstrip('v')
         print(f"Trivy is already installed (version: {installed_version}). Skipping installation.")
         return True
-    except subprocess.CalledProcessError:
+    except (subprocess.CalledProcessError, FileNotFoundError):
         print("Trivy is not installed.")
         return False
+    except Exception as err:
+        print(f"{type(err).__name__} was raised: {err}")
+        sys.exit(1)
+
 
 # Function to check the OS, architecture, set the download URL, and install the package
 def install_trivy(trivy_version):
@@ -99,9 +103,16 @@ def verify_installation():
         result = subprocess.run(["trivy", "--version"], check=True, capture_output=True, text=True)
         installed_version = result.stdout.split()[1].lstrip('v')
         print(f"Trivy installed successfully. Version: {installed_version}")
+        return True
     except subprocess.CalledProcessError:
         print("Trivy installation failed or Trivy is not installed.")
         sys.exit(1)
+
+def run_scan():
+    # Run the Trivy filesystem scan
+    print("Running Trivy filesystem scan...")
+    subprocess.run(["trivy", "filesystem", "/", "--scanners", "vuln", "-q", "--ignore-unfixed"], check=True)
+    print("Trivy scan completed.")
 
 if __name__ == "__main__":
     # Parse the version argument from the command line
@@ -113,4 +124,5 @@ if __name__ == "__main__":
         install_trivy(trivy_version)
 
     # Verify the installation
-    verify_installation()
+    if verify_installation():
+        run_scan()
